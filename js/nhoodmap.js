@@ -36,7 +36,10 @@ var viewModel = {
   },
 
   // displays a map centered at a given location with a marker on that location
-  displayMap: function(location = viewModel.locationCoords) {
+  displayMap: function(location = viewModel.locationCoords()) {
+    if (!location) {
+      return;
+    }
     var mapElement = document.getElementById('map');
     var map = new google.maps.Map(mapElement, {
       zoom: 16,
@@ -82,5 +85,11 @@ var viewModel = {
 
 };
 
+// initialize viewModel
 viewModel.init();
 ko.applyBindings(viewModel);
+
+// callback function from initial map call in index.html
+function initialMap() {
+  viewModel.displayMap();
+}
