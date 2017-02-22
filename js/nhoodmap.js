@@ -23,16 +23,14 @@ var viewModel = {
     var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + this.address();
     $.ajax({
       url: url,
-      success: this.addressSuccess,
-      context: this
+      context: this,
+      success: function(result) {
+        // on success inputting address, display map centered on lat/long of address
+        this.locationCoords(result.results[0].geometry.location);
+        this.displayMap(this.locationCoords());
+      }
     });
 
-  },
-
-  // on success inputting address, display map centered on lat/long of address
-  addressSuccess: function(result) {
-    this.locationCoords(result.results[0].geometry.location);
-    this.displayMap(this.locationCoords());
   },
 
   // displays a map centered at a given location with a marker on that location
@@ -62,12 +60,36 @@ var viewModel = {
       lat: result.latLng.lat(),
       lng: result.latLng.lng()
     };
-    var newMarker = new google.maps.Marker({
-      position: markerLocation,
-      map: viewModel.map()
+
+    // reverse geocode to find address
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({'location': markerLocation}, function(results, status) {
+      if (status === 'OK') {
+        if (results[0]) {
+          // on success, store the data
+          var newMarker = new google.maps.Marker({
+            position: markerLocation,
+            address: results[0].formatted_address,
+            map: viewModel.map()
+          });
+          viewModel.markerLocations.push(markerLocation);
+          viewModel.markers.push(newMarker);
+
+          var infoWindow = new google.maps.InfoWindow({
+            // TODO: make HTML for the content of infoWindow, input box to be able to add a title
+            content: newMarker.address
+          });
+          infoWindow.open(viewModel.map(), newMarker);
+
+        } else {
+          window.alert('No results found');
+        }
+      } else {
+        window.alert('Geocoder failed due to: ' + status);
+      }
+
     });
-    viewModel.markerLocations.push(markerLocation);
-    viewModel.markers.push(newMarker);
+
   },
 
   // displays all markers based on stored marker locations
