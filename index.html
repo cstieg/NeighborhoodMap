@@ -1,21 +1,26 @@
+<!DOCTYPE html>
+
 <html>
   <head>
     <title>Neighborhood Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-    <head>
+    <header>
       <h1>Neighborhood Map</h1>
       <form data-bind="submit: inputAddress">
         <label for="address">Type address</label>
         <input type="text" name="address">
         <button type="submit">Submit</button>
       </form>
-    </head>
-    <content>
-      <p data-bind="text: address"></p>
-    </content>
+    </header>
+    <div id="map">
+
+    </div>
   </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/knockout-3.4.1.js"></script>
   <script src="js/nhoodmap.js"></script>
-</html>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBp2q8-jiC2Ty7MzRUvqKWiNerYA-3qG84&callback=initMap">
+</script>
