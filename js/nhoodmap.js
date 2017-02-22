@@ -3,6 +3,8 @@
 var viewModel = {
   address: ko.observable(),
   locationCoords: ko.observable(),
+  map: ko.observable(),
+  markers: ko.observableArray(),
 
 
 
@@ -30,23 +32,21 @@ var viewModel = {
       map: map,
       animation: google.maps.Animation.DROP
     });
+    map.addListener('rightclick', this.addMarker);
+    this.map(map);
+  },
+
+  addMarker: function(result) {
+    var markerLocation = {
+      lat: result.latLng.lat(),
+      lng: result.latLng.lng()
+    };
+    var newMarker = new google.maps.Marker({
+      position: markerLocation,
+      map: viewModel.map()
+    });
   }
 
 };
 
 ko.applyBindings(viewModel);
-
-
-
-function initMap() {
-  var uluru = {lat: -25.363, lng: 131.044};
-  var mapElement = document.getElementById('map');
-  var map = new google.maps.Map(mapElement, {
-    zoom: 13,
-    center: uluru
-  });
-  var marker = new google.maps.Marker({
-    position: uluru,
-    map: map
-  });
-}
