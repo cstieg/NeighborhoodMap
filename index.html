@@ -11,7 +11,7 @@
       <h1>Neighborhood Map</h1>
       <form data-bind="submit: inputAddress">
         <label for="address">Type address</label>
-        <input type="text" name="address">
+        <input type="text" name="address" data-bind="value: address">
         <button type="submit">Submit</button>
       </form>
     </header>
@@ -21,6 +21,7 @@
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/knockout-3.4.1.js"></script>
+  <script src="js/knockout.localStorage.js"></script>
   <script src="js/nhoodmap.js"></script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBp2q8-jiC2Ty7MzRUvqKWiNerYA-3qG84">
 </script>
