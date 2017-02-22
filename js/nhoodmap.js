@@ -34,6 +34,7 @@ var viewModel = {
     });
     map.addListener('rightclick', this.addMarker);
     this.map(map);
+    this.displayMarkers();
   },
 
   addMarker: function(result) {
@@ -44,6 +45,13 @@ var viewModel = {
     var newMarker = new google.maps.Marker({
       position: markerLocation,
       map: viewModel.map()
+    });
+    viewModel.markers.push(newMarker);
+  },
+
+  displayMarkers: function() {
+    this.markers().forEach(function(marker) {
+      marker.setMap(viewModel.map());
     });
   }
 
