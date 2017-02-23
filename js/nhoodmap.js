@@ -11,10 +11,11 @@ var viewModel = {
     this.address = ko.observable(null, {persist: 'address'});
     this.locationCoords = ko.observable(null, {persist: 'locationCoords'});
     this.map = ko.observable();
-    this.markerLocations = ko.observableArray(null, {persist: 'markerLocations'});
-    this.markers = ko.observableArray();
+    this.markers = ko.observableArray(null, {persist: 'markers'});
   },
 
+
+  //============================MAIN MAP=====================================//
   // Takes an address from the user and uses Google Maps API to convert it to a
   // latitutude/longitude location
   inputAddress: function(formData) {
@@ -54,6 +55,10 @@ var viewModel = {
     this.displayMarkers();
   },
 
+
+  //==============================MARKERS=====================================//
+
+
   // adds a marker from a click event
   addMarker: function(result) {
     var markerLocation = {
@@ -67,41 +72,62 @@ var viewModel = {
       if (status === 'OK') {
         if (results[0]) {
           // on success, store the data
-          var newMarker = new google.maps.Marker({
+          var newMarker = {
+            placeName: '',
             position: markerLocation,
             address: results[0].formatted_address,
-            map: viewModel.map()
-          });
-          viewModel.markerLocations.push(markerLocation);
+          };
+          // need to keep marker data from Google Maps' marker object,
+          // as persisting google objects causes error
+          var gMapMarker = viewModel.showMarker(newMarker, viewModel.map());
+          viewModel.createNewInfoWindow(newMarker, gMapMarker);
           viewModel.markers.push(newMarker);
-
-          var infoWindow = new google.maps.InfoWindow({
-            // TODO: make HTML for the content of infoWindow, input box to be able to add a title
-            content: newMarker.address
-          });
-          infoWindow.open(viewModel.map(), newMarker);
-
         } else {
           window.alert('No results found');
         }
       } else {
         window.alert('Geocoder failed due to: ' + status);
       }
-
     });
+  },
 
+  // displays a marker on the map, returns reference to Google Maps' marker object
+  showMarker: function(marker, map) {
+    var gMapMarker = new google.maps.Marker(objCpy(marker));
+    gMapMarker.setMap(map);
+    return gMapMarker;
+  },
+
+  // displays a infoWindow on the map corresponding to a given marker
+  createNewInfoWindow: function(gMapMarker) {
+    var infoWindow = new google.maps.InfoWindow({
+      content: viewModel.markerInfoWindowContent(gMapMarker)
+    });
+    infoWindow.open(viewModel.map(), gMapMarker);
+    //gMapMarker.infoWindow = infoWindow;
+  },
+
+  markerInfoWindowContent: function(marker) {
+    var content = `
+      <form>
+        <input type="text" name="name" placeholder="Input name for this location"><br>
+        <p>${marker.address}</p>
+        <button type="submit" name="save" onclick="viewModel.saveMarkerInfo()">Save</button>
+      </form>
+     `;
+    return content;
+  },
+
+  saveMarkerInfo: function(event) {
+    debugger;
   },
 
   // displays all markers based on stored marker locations
   displayMarkers: function() {
     var vm = this;
-    vm.markers.removeAll();
-    vm.markerLocations().forEach(function(markerLocation) {
-      var newMarker = new google.maps.Marker({
-        position: markerLocation,
-        map: viewModel.map()
-      });
-      vm.markers.push(newMarker);
+    vm.markers().forEach(function(marker) {
+      var gMapMarker = vm.showMarker(marker, vm.map());
+      vm.createNewInfoWindow(gMapMarker);
     });
   }
 
@@ -114,4 +140,14 @@ ko.applyBindings(viewModel);
 // callback function from initial map call in index.html
 function initialMap() {
   viewModel.displayMap();
+}
+
+function objCpy(originalObject) {
+  var newObject = {};
+  for (var prop in originalObject) {
+    if (originalObject.hasOwnProperty(prop)) {
+        newObject[prop] = originalObject[prop];
+    }
+  }
+  return newObject;
 }
