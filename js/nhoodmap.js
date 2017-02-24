@@ -85,7 +85,6 @@ var viewModel = {
           // on success, store the data
           var newMarker = {
             markerID: generateID(),
-            placeName: '',
             position: markerLocation,
             address: results[0].formatted_address,
           };
@@ -113,8 +112,12 @@ var viewModel = {
 
   // displays a infoWindow on the map corresponding to a given marker
   createNewInfoWindow: function(gMapMarker) {
+    var action = "edit";
+    if (gMapMarker.placeName) {
+      action = "display";
+    }
     var infoWindow = new google.maps.InfoWindow({
-      content: viewModel.markerInfoWindowContent(gMapMarker)
+      content: viewModel.markerInfoWindowContent(gMapMarker, action)
     });
     infoWindow.open(viewModel.map(), gMapMarker);
     infoWindow.markerID = gMapMarker.markerID;
@@ -123,23 +126,51 @@ var viewModel = {
 
 //=================MARKER INFOWINDOW INTERACTION=============================//
 
-
-  markerInfoWindowContent: function(marker) {
-    var content = `
-      <form>
-        <input type="text" name="name" placeholder="Input name for this location"><br>
+  // return the form html for infoWindow at marker
+  markerInfoWindowContent: function(marker, action) {
+    var content = `<form>`;
+    if (action == "edit") {
+      content += `<input type="text" name="name" placeholder="Input name for this location"><br>`;
+    }
+    else {
+      content += `<p>${marker.placeName}</p>`;
+    }
+    content += `
         <p>${marker.address}</p>
         <p>${marker.position}</p>
         <p class="markerID" style="display: none">${marker.markerID}</p>
-        <button type="submit" name="save" onclick="viewModel.saveMarkerInfo(event)">Save</button>
+        `;
+    if (action == "edit") {
+        content += `<button type="submit" name="save" onclick="return viewModel.saveMarkerInfo(event)">Save</button>`;
+    }
+    else {
+        content += `<button type="submit" name="edit" onclick="viewModel.editMarkerInfo(event)">Edit</button>`;
+    }
+    content += `
         <button type="delete" name="delete" onclick="return viewModel.deleteMarker(event)">Delete</button>
       </form>
-     `;
+      `;
     return content;
   },
 
+  // save name for new marker
   saveMarkerInfo: function(event) {
-    debugger;
+    var newName = event.target.form.name.value;
+    var markerID = event.target.parentNode.getElementsByClassName('markerID')[0].innerText;
+    var matchMarkerID = function(object) {
+      return (object.markerID == markerID);
+    }
+
+    // find and update arker in array
+    var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    marker.placeName = newName;
+    viewModel.markers.sort(); // hack to make persist to localStorage
+    // find and update infoWindow
+    var infoWindow = viewModel.infoWindows.find(matchMarkerID);
+    if (infoWindow) {
+      infoWindow.content = viewModel.markerInfoWindowContent(marker, "display");
+    };
+    return true;
   },
 
   // deletes a marker and its associated infoWindow and gmap marker
