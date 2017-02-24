@@ -12,6 +12,9 @@ var viewModel = {
     this.locationCoords = ko.observable(null, {persist: 'locationCoords'});
     this.map = ko.observable();
     this.markers = ko.observableArray(null, {persist: 'markers'});
+    // simple js arrays to collect google maps objects for later access
+    this.gMapMarkers = [];
+    this.infoWindows = [];
   },
 
 
@@ -58,6 +61,14 @@ var viewModel = {
 
   //==============================MARKERS=====================================//
 
+  // displays all markers based on stored marker locations
+  displayMarkers: function() {
+    var vm = this;
+    vm.markers().forEach(function(marker) {
+      var gMapMarker = vm.showMarker(marker, vm.map());
+      vm.createNewInfoWindow(gMapMarker);
+    });
+  },
 
   // adds a marker from a click event
   addMarker: function(result) {
@@ -73,14 +84,16 @@ var viewModel = {
         if (results[0]) {
           // on success, store the data
           var newMarker = {
+            markerID: generateID(),
             placeName: '',
             position: markerLocation,
             address: results[0].formatted_address,
           };
-          // need to keep marker data from Google Maps' marker object,
+          // need to keep marker data separate from Google Maps' marker object,
           // as persisting google objects causes error
           var gMapMarker = viewModel.showMarker(newMarker, viewModel.map());
-          viewModel.createNewInfoWindow(newMarker, gMapMarker);
+          viewModel.gMapMarkers.push(gMapMarker);
+          viewModel.createNewInfoWindow(gMapMarker);
           viewModel.markers.push(newMarker);
         } else {
           window.alert('No results found');
@@ -104,15 +117,22 @@ var viewModel = {
       content: viewModel.markerInfoWindowContent(gMapMarker)
     });
     infoWindow.open(viewModel.map(), gMapMarker);
-    //gMapMarker.infoWindow = infoWindow;
+    infoWindow.markerID = gMapMarker.markerID;
+    viewModel.infoWindows.push(infoWindow);
   },
+
+//=================MARKER INFOWINDOW INTERACTION=============================//
+
 
   markerInfoWindowContent: function(marker) {
     var content = `
       <form>
         <input type="text" name="name" placeholder="Input name for this location"><br>
         <p>${marker.address}</p>
-        <button type="submit" name="save" onclick="viewModel.saveMarkerInfo()">Save</button>
+        <p>${marker.position}</p>
+        <p class="markerID" style="display: none">${marker.markerID}</p>
+        <button type="submit" name="save" onclick="viewModel.saveMarkerInfo(event)">Save</button>
+        <button type="delete" name="delete" onclick="return viewModel.deleteMarker(event)">Delete</button>
       </form>
      `;
     return content;
@@ -122,15 +142,31 @@ var viewModel = {
     debugger;
   },
 
-  // displays all markers based on stored marker locations
-  displayMarkers: function() {
-    var vm = this;
-    vm.markers().forEach(function(marker) {
-      var gMapMarker = vm.showMarker(marker, vm.map());
-      vm.createNewInfoWindow(gMapMarker);
-    });
+  // deletes a marker and its associated infoWindow and gmap marker
+  deleteMarker: function(event) {
+    var markerID = event.target.parentNode.getElementsByClassName('markerID')[0].innerText;
+    var matchMarkerID = function(object) {
+      return (object.markerID == markerID);
+    }
+    // find and close infoWindow
+    var infoWindowToRemove = viewModel.infoWindows.find(matchMarkerID);
+    if (infoWindowToRemove) {
+      infoWindowToRemove.close();
+      viewModel.infoWindows.pop(matchMarkerID);
+    };
+    infoWindowToRemove = null;
+    // find and remove google maps marker
+    var markerToRemove = viewModel.gMapMarkers.find(matchMarkerID);
+    if (markerToRemove) {
+      markerToRemove.setMap(null);
+      viewModel.gMapMarkers.pop(matchMarkerID);
+    }
+    markerToRemove = null;
+    // find and remove marker from array
+    viewModel.markers.remove(matchMarkerID);
+    // return false to cancel form submission
+    return false;
   }
-
 };
 
 // initialize viewModel
@@ -150,4 +186,8 @@ function objCpy(originalObject) {
     }
   }
   return newObject;
+}
+
+function generateID() {
+  return Math.random().toString(36).substr(2, 9);
 }
