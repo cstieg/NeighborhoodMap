@@ -34,14 +34,11 @@ var viewModel = {
         this.displayMap(this.locationCoords());
       }
     });
-
   },
 
   // displays a map centered at a given location with a marker on that location
   displayMap: function(location = viewModel.locationCoords()) {
-    if (!location) {
-      return;
-    }
+    if (!location) { return; }
     var mapElement = document.getElementById('map');
     var map = new google.maps.Map(mapElement, {
       zoom: 16,
@@ -120,9 +117,7 @@ var viewModel = {
       viewModel.infoWindow.close();
       viewModel.infoWindow = null;
     }
-    if (!marker) {
-      return;
-    }
+    if (!marker) { return; }
     var markerID = marker.markerID;
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
@@ -132,6 +127,7 @@ var viewModel = {
     var infoWindow = new google.maps.InfoWindow({
       content: viewModel.markerInfoWindowContent(gMapMarker, action)
     });
+    // store infoWindow (only one open at a time) in variable to make sure it stays alive
     viewModel.infoWindow = infoWindow;
     infoWindow.open(viewModel.map(), gMapMarker);
   },
@@ -168,11 +164,13 @@ var viewModel = {
     return content;
   },
 
+  // on click on marker, show infoWindow
   showMarkerInfo: function(event) {
     var markerPosition = event.latLng;
     var marker = ko.utils.arrayFirst(viewModel.markers(), function(object) {
       return object.position.lat == markerPosition.lat() && object.position.lng == markerPosition.lng();
     });
+    if (!marker) { return; }
     viewModel.renderInfoWindow(marker, "display");
   },
 
@@ -184,7 +182,9 @@ var viewModel = {
     }
     // find marker in array
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    if (!marker) { return; }
     viewModel.renderInfoWindow(marker, "edit");
+    // return false to cancel form submission
     return false;
   },
 
@@ -198,9 +198,11 @@ var viewModel = {
 
     // find and update marker in array
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    if (!marker) { return; }
     marker.placeName = newName;
-    viewModel.markers.sort(); // hack to make persist to localStorage
+    viewModel.markers.sort(); // hack to make change persist to localStorage
     viewModel.renderInfoWindow(marker, "display");
+    // return false to cancel form submission
     return false;
   },
 
@@ -244,9 +246,7 @@ function objCpy(originalObject) {
 }
 
 function copyAttribs(source, target) {
-  if (!source) {
-    return;
-  }
+  if (!source) { return; }
   if (!target) {
     target = {};
   }
