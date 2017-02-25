@@ -111,6 +111,15 @@ var viewModel = {
     return gMapMarker;
   },
 
+  selectMarker: function(item) {
+    var markerID = item.markerID;
+    var matchMarkerID = function(object) {
+      return (object.markerID == markerID);
+    };
+    var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    viewModel.renderInfoWindow(marker, "display");
+  },
+
 
 //=================MARKER INFOWINDOW INTERACTION=============================//
 

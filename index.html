@@ -18,7 +18,7 @@
     <div id="map"></div>
     <div id="markers">
       <ul data-bind="foreach: markers">
-        <li data-bind="text: placeName"></li>
+        <li data-bind="text: placeName, click: viewModel.selectMarker"></li>
       </ul>
     </div>
   </body>
