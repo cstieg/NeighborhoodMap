@@ -15,8 +15,11 @@
         <button type="submit">Submit</button>
       </form>
     </header>
-    <div id="map">
-
+    <div id="map"></div>
+    <div id="markers">
+      <ul data-bind="foreach: markers">
+        <li data-bind="text: placeName"></li>
+      </ul>
     </div>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
