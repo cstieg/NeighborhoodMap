@@ -203,7 +203,9 @@ var viewModel = {
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
     if (!marker) { return; }
     marker.placeName = newName;
-    viewModel.markers.sort(); // hack to make change persist to localStorage
+    // remove and push to make update and persist to localStorage;
+    viewModel.markers.remove(marker);
+    viewModel.markers.push(marker);
     viewModel.renderInfoWindow(marker, "display");
     // return false to cancel form submission
     return false;
