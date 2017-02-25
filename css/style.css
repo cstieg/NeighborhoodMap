@@ -1,17 +1,80 @@
 html, body {
+  position: absolute;
+  margin: 0px;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
+header {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100px;
+  margin: 0px;
+}
+
+#content {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  top: 100px;
+  margin: 0px;
+}
+
+#map {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
   width: 100%;
   height: 100%;
   margin: 0px;
 }
 
-header {
-  width: 100%;
-  height: 20%;
-  margin: 0px;
+#markers {
+  position: absolute;
+  left: 10px;
+  top: 50px;
+  bottom: 50px;
+  min-width: 10%;
+  border: ridge medium gray;
+  background-color: rgba(0, 0, 255, 0.3);
+  overflow-y:auto;
 }
 
-#map {
+#searchMarkers {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  height: 20px;
+  width: 40%;
+  padding: 6px;
+  background-color: white;
+  border: solid thin lightgray;
+  display: flex;
+}
+
+#searchMarkers form {
+  width: 90%;
+  margin-left: 10px;
+  border: none;
+  shadow: none;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none
+}
+
+#searchMarkers input {
   width: 100%;
-  height: 65%;
-  margin: 0px;
+  padding: 4px;
+  border: solid 0px;
+}
+
+#searchMarkers input:focus {
+  outline: none;
 }

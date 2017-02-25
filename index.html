@@ -9,22 +9,27 @@
   <body>
     <header>
       <h1>Neighborhood Map</h1>
-      <form id="inputAddress" data-bind="submit: inputAddress">
-        <label for="address">Type address</label>
-        <input type="text" name="address" data-bind="value: address">
-        <button type="submit">Submit</button>
-      </form>
-      <form id="searchMarkers" data-bind="submit: searchMarkers">
-        <label for="searchText">Search markers: </label>
-        <input type="text" name="searchText">
-        <button type="submit">Search</button>
-      </form>
+      <div id="inputAddress">
+        <form data-bind="submit: inputAddress">
+          <label for="address">Type address</label>
+          <input type="text" name="address" data-bind="value: address">
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+      <div id="searchMarkers">
+        <div id="magnifyingGlass"><svg viewBox="0 0 18 18" width="18" height="18" role="icon"><path fill-rule="evenodd" d="M12.864 11.32h-.813l-.288-.277A6.66 6.66 0 0 0 13.38 6.69a6.69 6.69 0 1 0-6.69 6.69 6.66 6.66 0 0 0 4.354-1.617l.278.288v.813L16.467 18 18 16.467l-5.136-5.146zm-6.174 0a4.625 4.625 0 0 1-4.632-4.63A4.625 4.625 0 0 1 6.69 2.058a4.625 4.625 0 0 1 4.63 4.632 4.625 4.625 0 0 1-4.63 4.63z"></path></svg></div>
+        <form data-bind="submit: searchMarkers">
+          <input type="text" name="searchText" placeholder="search for the name of specific marker">
+        </form>
+      </div>
     </header>
-    <div id="map"></div>
-    <div id="markers">
-      <ul data-bind="foreach: markers">
-        <li data-bind="text: placeName, click: viewModel.selectMarker"></li>
-      </ul>
+    <div id="content">
+      <div id="map"></div>
+      <div id="markers">
+        <ul data-bind="foreach: markers">
+          <li data-bind="text: placeName, click: viewModel.selectMarker"></li>
+        </ul>
+      </div>
     </div>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
