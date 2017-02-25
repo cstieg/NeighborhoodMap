@@ -14,7 +14,7 @@ var viewModel = {
     this.markers = ko.observableArray(null, {persist: 'markers'});
     // simple js arrays to collect google maps objects for later access
     this.gMapMarkers = [];
-    this.infoWindows = [];
+    this.infoWindow = null;
   },
 
 
@@ -66,7 +66,7 @@ var viewModel = {
     var vm = this;
     vm.markers().forEach(function(marker) {
       var gMapMarker = vm.showMarker(marker, vm.map());
-      vm.createNewInfoWindow(gMapMarker);
+      viewModel.gMapMarkers.push(gMapMarker);
     });
   },
 
@@ -92,8 +92,8 @@ var viewModel = {
           // as persisting google objects causes error
           var gMapMarker = viewModel.showMarker(newMarker, viewModel.map());
           viewModel.gMapMarkers.push(gMapMarker);
-          viewModel.createNewInfoWindow(gMapMarker);
           viewModel.markers.push(newMarker);
+          viewModel.renderInfoWindow(newMarker, "edit");
         } else {
           window.alert('No results found');
         }
@@ -107,30 +107,45 @@ var viewModel = {
   showMarker: function(marker, map) {
     var gMapMarker = new google.maps.Marker(objCpy(marker));
     gMapMarker.setMap(map);
+    gMapMarker.addListener('click', viewModel.showMarkerInfo);
     return gMapMarker;
   },
 
-  // displays a infoWindow on the map corresponding to a given marker
-  createNewInfoWindow: function(gMapMarker) {
-    var action = "edit";
-    if (gMapMarker.placeName) {
-      action = "display";
+
+//=================MARKER INFOWINDOW INTERACTION=============================//
+
+  // display infoWindow at a given marker
+  renderInfoWindow: function(marker, action) {
+    if (viewModel.infoWindow) {
+      viewModel.infoWindow.close();
+      viewModel.infoWindow = null;
     }
+    if (!marker) {
+      return;
+    }
+    var markerID = marker.markerID;
+    var matchMarkerID = function(object) {
+      return (object.markerID == markerID);
+    };
+    var gMapMarker = viewModel.gMapMarkers.find(matchMarkerID);
+    gMapMarker.placeName = marker.placeName;
     var infoWindow = new google.maps.InfoWindow({
       content: viewModel.markerInfoWindowContent(gMapMarker, action)
     });
+    viewModel.infoWindow = infoWindow;
     infoWindow.open(viewModel.map(), gMapMarker);
-    infoWindow.markerID = gMapMarker.markerID;
-    viewModel.infoWindows.push(infoWindow);
   },
-
-//=================MARKER INFOWINDOW INTERACTION=============================//
 
   // return the form html for infoWindow at marker
   markerInfoWindowContent: function(marker, action) {
     var content = `<form>`;
     if (action == "edit") {
-      content += `<input type="text" name="name" placeholder="Input name for this location"><br>`;
+      if (marker.placeName) {
+        content += `<input type="text" name="name" value="${marker.placeName}"><br>`;
+      }
+      else {
+        content += `<input type="text" name="name" placeholder="Input name for this location"><br>`;
+      }
     }
     else {
       content += `<p>${marker.placeName}</p>`;
@@ -144,13 +159,33 @@ var viewModel = {
         content += `<button type="submit" name="save" onclick="return viewModel.saveMarkerInfo(event)">Save</button>`;
     }
     else {
-        content += `<button type="submit" name="edit" onclick="viewModel.editMarkerInfo(event)">Edit</button>`;
+        content += `<button type="submit" name="edit" onclick="return viewModel.editMarkerInfo(event)">Edit</button>`;
     }
     content += `
         <button type="delete" name="delete" onclick="return viewModel.deleteMarker(event)">Delete</button>
       </form>
       `;
     return content;
+  },
+
+  showMarkerInfo: function(event) {
+    var markerPosition = event.latLng;
+    var marker = ko.utils.arrayFirst(viewModel.markers(), function(object) {
+      return object.position.lat == markerPosition.lat() && object.position.lng == markerPosition.lng();
+    });
+    viewModel.renderInfoWindow(marker, "display");
+  },
+
+  // edit marker infoWindow
+  editMarkerInfo: function(event) {
+    var markerID = event.target.parentNode.getElementsByClassName('markerID')[0].innerText;
+    var matchMarkerID = function(object) {
+      return (object.markerID == markerID);
+    }
+    // find marker in array
+    var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    viewModel.renderInfoWindow(marker, "edit");
+    return false;
   },
 
   // save name for new marker
@@ -161,16 +196,12 @@ var viewModel = {
       return (object.markerID == markerID);
     }
 
-    // find and update arker in array
+    // find and update marker in array
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
     marker.placeName = newName;
     viewModel.markers.sort(); // hack to make persist to localStorage
-    // find and update infoWindow
-    var infoWindow = viewModel.infoWindows.find(matchMarkerID);
-    if (infoWindow) {
-      infoWindow.content = viewModel.markerInfoWindowContent(marker, "display");
-    };
-    return true;
+    viewModel.renderInfoWindow(marker, "display");
+    return false;
   },
 
   // deletes a marker and its associated infoWindow and gmap marker
@@ -179,13 +210,6 @@ var viewModel = {
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
     }
-    // find and close infoWindow
-    var infoWindowToRemove = viewModel.infoWindows.find(matchMarkerID);
-    if (infoWindowToRemove) {
-      infoWindowToRemove.close();
-      viewModel.infoWindows.pop(matchMarkerID);
-    };
-    infoWindowToRemove = null;
     // find and remove google maps marker
     var markerToRemove = viewModel.gMapMarkers.find(matchMarkerID);
     if (markerToRemove) {
@@ -217,6 +241,20 @@ function objCpy(originalObject) {
     }
   }
   return newObject;
+}
+
+function copyAttribs(source, target) {
+  if (!source) {
+    return;
+  }
+  if (!target) {
+    target = {};
+  }
+  for (var prop in source) {
+    if (source.hasOwnProperty(prop)) {
+      target[prop] = source[prop];
+    }
+  }
 }
 
 function generateID() {
