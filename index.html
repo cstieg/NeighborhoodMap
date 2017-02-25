@@ -9,10 +9,15 @@
   <body>
     <header>
       <h1>Neighborhood Map</h1>
-      <form data-bind="submit: inputAddress">
+      <form id="inputAddress" data-bind="submit: inputAddress">
         <label for="address">Type address</label>
         <input type="text" name="address" data-bind="value: address">
         <button type="submit">Submit</button>
+      </form>
+      <form id="searchMarkers" data-bind="submit: searchMarkers">
+        <label for="searchText">Search markers: </label>
+        <input type="text" name="searchText">
+        <button type="submit">Search</button>
       </form>
     </header>
     <div id="map"></div>

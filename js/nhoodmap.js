@@ -56,6 +56,22 @@ var viewModel = {
   },
 
 
+  //============================SEARCH MARKERS================================//
+  searchMarkers: function(formData) {
+    var searchText = formData.searchText.value;
+    var matchPlaceName = function(object) {
+      return (object.placeName == searchText);
+    };
+    var marker = ko.utils.arrayFirst(viewModel.markers(), matchPlaceName);
+    if (!marker) {
+      alert(searchText + " not found! Please try again.");
+      return;
+    }
+    viewModel.renderInfoWindow(marker, "display");
+    return false;
+  },
+
+
   //==============================MARKERS=====================================//
 
   // displays all markers based on stored marker locations
