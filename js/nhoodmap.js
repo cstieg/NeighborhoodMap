@@ -85,6 +85,9 @@ var viewModel = {
             position: markerLocation,
             address: results[0].formatted_address,
           };
+          if (!newMarker.placeName) {
+            newMarker.placeName = '';
+          }
           // need to keep marker data separate from Google Maps' marker object,
           // as persisting google objects causes error
           var gMapMarker = viewModel.showMarker(newMarker, viewModel.map());
