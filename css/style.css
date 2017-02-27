@@ -43,8 +43,19 @@ header {
   bottom: 50px;
   min-width: 10%;
   border: ridge medium gray;
-  background-color: rgba(0, 0, 255, 0.3);
+  background-color: rgba(255, 255, 240, 0.8);
   overflow-y:auto;
+}
+
+#streetView {
+  position: absolute;
+  right: 10px;
+  top: 50px;
+  height: 50%;
+  width: 30%;
+  min-width: 200px;
+  min-height: 200px;
+  border: solid black thin;
 }
 
 #searchMarkers {

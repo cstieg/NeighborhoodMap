@@ -56,6 +56,19 @@ var viewModel = {
   },
 
 
+  displayStreetview: function(location = viewModel.locationCoords()) {
+    if (!location) { return; }
+    var mapElement = document.getElementById('streetView');
+    var streetView = new google.maps.StreetViewPanorama(mapElement, {
+      position: location,
+      pov: {
+        heading: 0,
+        pitch: 0
+      }
+    })
+    viewModel.map().setStreetView(streetView);
+  },
+
   //============================SEARCH MARKERS================================//
   searchMarkers: function(formData) {
     var searchText = formData.searchText.value;
@@ -123,7 +136,8 @@ var viewModel = {
   showMarker: function(marker, map) {
     var gMapMarker = new google.maps.Marker(objCpy(marker));
     gMapMarker.setMap(map);
-    gMapMarker.addListener('click', viewModel.showMarkerInfo);
+    gMapMarker.addListener('click', viewModel.onClickMarker);
+    gMapMarker.addListener('mouseover', viewModel.onClickMarker);
     return gMapMarker;
   },
 
@@ -134,6 +148,7 @@ var viewModel = {
     };
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
     viewModel.renderInfoWindow(marker, "display");
+    viewModel.displayStreetview(marker.position);
   },
 
 
@@ -193,13 +208,14 @@ var viewModel = {
   },
 
   // on click on marker, show infoWindow
-  showMarkerInfo: function(event) {
+  onClickMarker: function(event) {
     var markerPosition = event.latLng;
     var marker = ko.utils.arrayFirst(viewModel.markers(), function(object) {
       return object.position.lat == markerPosition.lat() && object.position.lng == markerPosition.lng();
     });
     if (!marker) { return; }
     viewModel.renderInfoWindow(marker, "display");
+    viewModel.displayStreetview(markerPosition);
   },
 
   // edit marker infoWindow
@@ -263,6 +279,7 @@ ko.applyBindings(viewModel);
 // callback function from initial map call in index.html
 function initialMap() {
   viewModel.displayMap();
+  viewModel.displayStreetview();
 }
 
 function objCpy(originalObject) {
