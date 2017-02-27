@@ -141,14 +141,22 @@ var viewModel = {
     return gMapMarker;
   },
 
-  selectMarker: function(item) {
+  clickMarkerName: function(item) {
     var markerID = item.markerID;
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
     };
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
+    viewModel.selectMarker(marker);
+  },
+
+  selectMarker: function(marker) {
+    if (!marker) { return; }
+    var markerPosition = marker.position;
+    $('#mediaInfo')[0].innerHTML = "";
     viewModel.renderInfoWindow(marker, "display");
-    viewModel.displayStreetview(marker.position);
+    viewModel.displayStreetview(markerPosition);
+    viewModel.retrieveWikipediaPages(markerPosition);
   },
 
 
@@ -214,11 +222,7 @@ var viewModel = {
     var marker = ko.utils.arrayFirst(viewModel.markers(), function(object) {
       return object.position.lat == markerPosition.lat() && object.position.lng == markerPosition.lng();
     });
-    if (!marker) { return; }
-    $('#mediaInfo')[0].innerHTML = "";
-    viewModel.renderInfoWindow(marker, "display");
-    viewModel.displayStreetview(markerPosition);
-    viewModel.retrieveWikipediaPages(markerPosition);
+    viewModel.selectMarker(marker);
   },
 
   // edit marker infoWindow
@@ -276,7 +280,7 @@ var viewModel = {
 
   //==================RETRIEVE MEDIA DATA=====================================//
   retrieveWikipediaPages: function(location) {
-    var wikiURL = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat()}|${location.lng()}&gsradius=100&gslimit=10&format=json`;
+    var wikiURL = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat}|${location.lng}&gsradius=100&gslimit=10&format=json`;
     $.ajax({
       url: wikiURL,
       type: 'GET',
