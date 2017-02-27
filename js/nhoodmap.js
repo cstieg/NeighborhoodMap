@@ -192,6 +192,7 @@ var viewModel = {
     content += `
         <p>${marker.address}</p>
         <p>${marker.position}</p>
+        <div id="wikipediaLinks"></div>
         <p class="markerID" style="display: none">${marker.markerID}</p>
         `;
     if (action == "edit") {
@@ -214,8 +215,10 @@ var viewModel = {
       return object.position.lat == markerPosition.lat() && object.position.lng == markerPosition.lng();
     });
     if (!marker) { return; }
+    $('#mediaInfo')[0].innerHTML = "";
     viewModel.renderInfoWindow(marker, "display");
     viewModel.displayStreetview(markerPosition);
+    viewModel.retrieveWikipediaPages(markerPosition);
   },
 
   // edit marker infoWindow
@@ -269,7 +272,47 @@ var viewModel = {
     viewModel.markers.remove(matchMarkerID);
     // return false to cancel form submission
     return false;
-  }
+  },
+
+  //==================RETRIEVE MEDIA DATA=====================================//
+  retrieveWikipediaPages: function(location) {
+    var wikiURL = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat()}|${location.lng()}&gsradius=100&gslimit=10&format=json`;
+    $.ajax({
+      url: wikiURL,
+      type: 'GET',
+      dataType: 'jsonp',
+      headers: {
+        'Api-User-Agent': 'NeighborHoodMap/1.0 (http://circumspectus.com/; cstieg4899@yahoo.com)'
+      },
+      success: function(data) {
+        var wikiPages = data.query.geosearch;
+        if (wikiPages.length == 0) { return };
+        var $wikipediaLinks = $("#wikipediaLinks");
+        $wikipediaLinks.innerHTML = "";
+        for (var i = 0; i < wikiPages.length; i++) {
+          $wikipediaLinks.append(`<p><a href="https://en.wikipedia.org/wiki/${wikiPages[i].title}">${wikiPages[i].title}</a></p>`);
+        }
+
+        $.ajax({
+          url: `https:/en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=explaintext&titles=${wikiPages[0].title}`,
+          type: 'GET',
+          dataType: 'jsonp',
+          headers: {
+            'Api-User-Agent': 'NeighborHoodMap/1.0 (http://circumspectus.com/; cstieg4899@yahoo.com)'
+          },
+          success: function(data) {
+            var pageIDs = Object.keys(data.query.pages);
+            var pageContent = data.query.pages[pageIDs[0]].extract;
+            $('#mediaInfo')[0].innerHTML = pageContent;
+          }
+        });
+
+
+      }
+    });
+  },
+
+
 };
 
 // initialize viewModel
