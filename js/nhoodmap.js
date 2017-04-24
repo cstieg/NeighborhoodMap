@@ -8,10 +8,18 @@ var viewModel = {
   // Initializes data in Knockout observables, which automatically refreshes html
   // Data is persisted to localStorage by knockout.localStorage.js
   init: function() {
-    this.address = ko.observable(null, {persist: 'address'});
+    //this.address = ko.observable(null, {persist: 'address'});
+    this.address = '143 Bostwick Ave NE, Grand Rapids, MI 49503';
+    this.locations = ['303 Monroe Ave NW, Grand Rapids, MI 49503',
+                      '143 Bostwick Ave NE, Grand Rapids, MI 49503',
+                      '101 Fulton St E, Grand Rapids, MI 49503',
+                      '130 Fulton W, Grand Rapids, MI 49503',
+                      'Sneden Hall, 415 Fulton St E, Grand Rapids, MI 49503',
+                      '265 Sheldon Blvd SE, Grand Rapids, MI 49503'];
     this.locationCoords = ko.observable(null, {persist: 'locationCoords'});
     this.map = ko.observable();
     this.markers = ko.observableArray(null, {persist: 'markers'});
+    //this.markers.removeAll();
     // simple js arrays to collect google maps objects for later access
     this.gMapMarkers = [];
     this.infoWindow = null;
@@ -19,6 +27,9 @@ var viewModel = {
 
 
   //============================MAIN MAP=====================================//
+
+
+
   // Takes an address from the user and uses Google Maps API to convert it to a
   // latitutude/longitude location
   inputAddress: function(formData) {
@@ -36,21 +47,35 @@ var viewModel = {
     });
   },
 
-  // displays a map centered at a given location with a marker on that location
+  addAddressToMarkers: function(address) {
+    var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + address;
+    $.ajax({
+      url: url,
+      context: this,
+      success: function(result) {
+        // on success inputting address, display map centered on lat/long of address
+        this.addMarker(result.results[0].geometry.location);
+      }
+    });
+  },
+
+
+  // displays a map centered at a given location
   displayMap: function(location = viewModel.locationCoords()) {
     if (!location) { return; }
-    var mapElement = document.getElementById('map');
+    var mapElement = $('#map')[0];
     var map = new google.maps.Map(mapElement, {
       zoom: 16,
       center: location
     });
+    /*
     var marker = new google.maps.Marker({
       position: location,
       map: map,
       animation: google.maps.Animation.DROP
-    });
+    });*/
     // rightclick adds a user-defined marker
-    map.addListener('rightclick', this.addMarker);
+    map.addListener('rightclick', this.rightClickMap);
     this.map(map);
     this.displayMarkers();
   },
@@ -58,7 +83,7 @@ var viewModel = {
 
   displayStreetview: function(location = viewModel.locationCoords()) {
     if (!location) { return; }
-    var mapElement = document.getElementById('streetView');
+    var mapElement = $('.street-view')[0];
     var streetView = new google.maps.StreetViewPanorama(mapElement, {
       position: location,
       pov: {
@@ -97,18 +122,28 @@ var viewModel = {
   },
 
   // adds a marker from a click event
-  addMarker: function(result) {
+  rightClickMap: function(result) {
     var markerLocation = {
       lat: result.latLng.lat(),
       lng: result.latLng.lng()
     };
+  },
 
+  addMarker: function(markerLocation) {
     // reverse geocode to find address
     var geocoder = new google.maps.Geocoder;
     geocoder.geocode({'location': markerLocation}, function(results, status) {
       if (status === 'OK') {
         if (results[0]) {
           // on success, store the data
+          // check to make sure location is not already stored
+          var matchingLocation = ko.utils.arrayFirst(viewModel.markers, function(marker) {
+            return marker.position === markerLocation;
+          });
+          if (matchingLocation) {
+            return;
+          }
+
           var newMarker = {
             markerID: generateID(),
             position: markerLocation,
@@ -153,7 +188,7 @@ var viewModel = {
   selectMarker: function(marker) {
     if (!marker) { return; }
     var markerPosition = marker.position;
-    $('#mediaInfo')[0].innerHTML = "";
+    $('.media-info')[0].innerHTML = "";
     viewModel.renderInfoWindow(marker, "display");
     viewModel.displayStreetview(markerPosition);
     viewModel.retrieveWikipediaPages(markerPosition);
@@ -326,6 +361,9 @@ ko.applyBindings(viewModel);
 // callback function from initial map call in index.html
 function initialMap() {
   viewModel.displayMap();
+  viewModel.locations.forEach(function(location) {
+    viewModel.addAddressToMarkers(location);
+  });
   viewModel.displayStreetview();
 }
 
@@ -353,4 +391,24 @@ function copyAttribs(source, target) {
 
 function generateID() {
   return Math.random().toString(36).substr(2, 9);
+}
+
+function toggleSidebar() {
+  if ($('#collapse-button')[0].innerHTML == '&gt;') {
+    $('#sidebar').removeClass('collapsed-sidebar');
+    $('.collapsible').removeClass('no-display');
+    $('.rotatable').removeClass('rotate');
+    $('#collapse-button').html('&lt;');
+    $('#sidebar .title h1').text('Neighborhood Map');
+    $('#sidebar .title').width('100%');
+  }
+  else {
+    $('#sidebar').addClass('collapsed-sidebar');
+    $('.collapsible').addClass('no-display');
+    $('.rotatable').addClass('rotate');
+    $('#collapse-button').html('&gt;');
+    $('#sidebar .title h1').text('Click to Expand');
+    var sidebarHeight = $('#sidebar')[0].clientHeight;
+    $('#sidebar .title').width(sidebarHeight);
+  }
 }

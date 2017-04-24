@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <title>Neighborhood Map</title>
@@ -7,32 +6,36 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-    <header>
-      <h1>Neighborhood Map</h1>
+    <main>
+      <div id="map"></div>
+      <div id="sidebar" class="sidebar">
+        <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow" onclick="toggleSidebar()">&lt;</button>
+        <div class="title rotatable">
+          <h1>Neighborhood Map</h1>
+        </div>
+        <div class="search-markers collapsible">
+          <div class="magnifying-glass collapsible"></div>
+          <form class="collapsible" data-bind="submit: searchMarkers">
+            <input type="text" name="searchText" placeholder="search for the name of specific marker">
+          </form>
+        </div>
+        <div class="markers collapsible">
+          <ul data-bind="foreach: markers">
+            <li data-bind="text: placeName, click: viewModel.clickMarkerName"></li>
+          </ul>
+        </div>
+        <div class="street-view collapsible"></div>
+        <div class="media-info collapsible"></div>
+      </div>
       <div id="inputAddress">
         <form data-bind="submit: inputAddress">
-          <label for="address">Type address</label>
-          <input type="text" name="address" data-bind="value: address">
+          <input name="address" type="text" placeholder="add address">
           <button type="submit">Submit</button>
         </form>
       </div>
-      <div id="searchMarkers">
-        <div id="magnifyingGlass"><svg viewBox="0 0 18 18" width="18" height="18" role="icon"><path fill-rule="evenodd" d="M12.864 11.32h-.813l-.288-.277A6.66 6.66 0 0 0 13.38 6.69a6.69 6.69 0 1 0-6.69 6.69 6.66 6.66 0 0 0 4.354-1.617l.278.288v.813L16.467 18 18 16.467l-5.136-5.146zm-6.174 0a4.625 4.625 0 0 1-4.632-4.63A4.625 4.625 0 0 1 6.69 2.058a4.625 4.625 0 0 1 4.63 4.632 4.625 4.625 0 0 1-4.63 4.63z"></path></svg></div>
-        <form data-bind="submit: searchMarkers">
-          <input type="text" name="searchText" placeholder="search for the name of specific marker">
-        </form>
-      </div>
-    </header>
-    <div id="content">
-      <div id="map"></div>
-      <div id="markers">
-        <ul data-bind="foreach: markers">
-          <li data-bind="text: placeName, click: viewModel.clickMarkerName"></li>
-        </ul>
-      </div>
-      <div id="streetView"></div>
-      <div id="mediaInfo"></div>
-    </div>
+
+
+    </main>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/knockout-3.4.1.js"></script>
