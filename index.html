@@ -9,7 +9,7 @@
     <main>
       <div id="map"></div>
       <div id="sidebar" class="sidebar">
-        <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow" onclick="toggleSidebar()">&lt;</button>
+        <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow" onclick="event.stopPropagation(); toggleSidebar()">&lt;</button>
         <div class="title rotatable">
           <h1>Neighborhood Map</h1>
         </div>
@@ -27,12 +27,12 @@
         <div class="street-view collapsible"></div>
         <div class="media-info collapsible"></div>
       </div>
-      <div id="inputAddress">
-        <form data-bind="submit: inputAddress">
+    <!--  <div id="inputAddress">
+        <form data-bind="submit: alert('hello')">
           <input name="address" type="text" placeholder="add address">
           <button type="submit">Submit</button>
         </form>
-      </div>
+      </div>  -->
 
 
     </main>

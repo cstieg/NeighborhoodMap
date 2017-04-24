@@ -10,16 +10,23 @@ var viewModel = {
   init: function() {
     //this.address = ko.observable(null, {persist: 'address'});
     this.address = '143 Bostwick Ave NE, Grand Rapids, MI 49503';
+    this.locations = [new Marker('Cathedral of St. Andrew', '265 Sheldon Blvd SE, Grand Rapids, MI 49503', {lat: 42.9586366, lng: -85.66676749999999}),
+                      new Marker('First Congregational Church', '101 Fulton St E, Grand Rapids, MI 49503', {lat: 42.963807, lng: -85.666473})
+                    ];
+
+
+                    /*
     this.locations = ['303 Monroe Ave NW, Grand Rapids, MI 49503',
                       '143 Bostwick Ave NE, Grand Rapids, MI 49503',
                       '101 Fulton St E, Grand Rapids, MI 49503',
                       '130 Fulton W, Grand Rapids, MI 49503',
                       'Sneden Hall, 415 Fulton St E, Grand Rapids, MI 49503',
-                      '265 Sheldon Blvd SE, Grand Rapids, MI 49503'];
+                    '265 Sheldon Blvd SE, Grand Rapids, MI 49503']; */
     this.locationCoords = ko.observable(null, {persist: 'locationCoords'});
     this.map = ko.observable();
     this.markers = ko.observableArray(null, {persist: 'markers'});
     //this.markers.removeAll();
+
     // simple js arrays to collect google maps objects for later access
     this.gMapMarkers = [];
     this.infoWindow = null;
@@ -29,7 +36,7 @@ var viewModel = {
   //============================MAIN MAP=====================================//
 
 
-
+/*
   // Takes an address from the user and uses Google Maps API to convert it to a
   // latitutude/longitude location
   inputAddress: function(formData) {
@@ -59,7 +66,7 @@ var viewModel = {
     });
   },
 
-
+*/
   // displays a map centered at a given location
   displayMap: function(location = viewModel.locationCoords()) {
     if (!location) { return; }
@@ -127,9 +134,6 @@ var viewModel = {
       lat: result.latLng.lat(),
       lng: result.latLng.lng()
     };
-  },
-
-  addMarker: function(markerLocation) {
     // reverse geocode to find address
     var geocoder = new google.maps.Geocoder;
     geocoder.geocode({'location': markerLocation}, function(results, status) {
@@ -137,12 +141,9 @@ var viewModel = {
         if (results[0]) {
           // on success, store the data
           // check to make sure location is not already stored
-          var matchingLocation = ko.utils.arrayFirst(viewModel.markers, function(marker) {
-            return marker.position === markerLocation;
-          });
-          if (matchingLocation) {
-            return;
-          }
+          debugger;
+// markerLocation???
+
 
           var newMarker = {
             markerID: generateID(),
@@ -152,12 +153,11 @@ var viewModel = {
           if (!newMarker.placeName) {
             newMarker.placeName = '';
           }
-          // need to keep marker data separate from Google Maps' marker object,
-          // as persisting google objects causes error
-          var gMapMarker = viewModel.showMarker(newMarker, viewModel.map());
-          viewModel.gMapMarkers.push(gMapMarker);
-          viewModel.markers.push(newMarker);
-          viewModel.renderInfoWindow(newMarker, "edit");
+
+
+          viewModel.addMarker(newMarker);
+
+
         } else {
           window.alert('No results found');
         }
@@ -165,6 +165,24 @@ var viewModel = {
         window.alert('Geocoder failed due to: ' + status);
       }
     });
+  },
+
+
+
+  addMarker: function(marker) {
+      // need to keep marker data separate from Google Maps' marker object,
+      // as persisting google objects causes error
+      var matchingLocation = ko.utils.arrayFirst(viewModel.markers(), function(existingMarker) {
+        return marker.position.lat == existingMarker.position.lat && marker.position.lng == existingMarker.position.lng;
+      });
+      if (matchingLocation) {
+        return;
+      }
+
+      var gMapMarker = viewModel.showMarker(marker, viewModel.map());
+      viewModel.gMapMarkers.push(gMapMarker);
+      viewModel.markers.push(marker);
+      viewModel.renderInfoWindow(marker, "edit");
   },
 
   // displays a marker on the map, returns reference to Google Maps' marker object
@@ -342,7 +360,7 @@ var viewModel = {
           success: function(data) {
             var pageIDs = Object.keys(data.query.pages);
             var pageContent = data.query.pages[pageIDs[0]].extract;
-            $('#mediaInfo')[0].innerHTML = pageContent;
+            $('.media-info').html(pageContent);
           }
         });
 
@@ -361,8 +379,8 @@ ko.applyBindings(viewModel);
 // callback function from initial map call in index.html
 function initialMap() {
   viewModel.displayMap();
-  viewModel.locations.forEach(function(location) {
-    viewModel.addAddressToMarkers(location);
+  viewModel.locations.forEach(function(marker) {
+    viewModel.addMarker(marker);
   });
   viewModel.displayStreetview();
 }
@@ -396,6 +414,7 @@ function generateID() {
 function toggleSidebar() {
   if ($('#collapse-button')[0].innerHTML == '&gt;') {
     $('#sidebar').removeClass('collapsed-sidebar');
+    $('#sidebar').off('click');
     $('.collapsible').removeClass('no-display');
     $('.rotatable').removeClass('rotate');
     $('#collapse-button').html('&lt;');
@@ -404,6 +423,7 @@ function toggleSidebar() {
   }
   else {
     $('#sidebar').addClass('collapsed-sidebar');
+    $('#sidebar').on('click', toggleSidebar);
     $('.collapsible').addClass('no-display');
     $('.rotatable').addClass('rotate');
     $('#collapse-button').html('&gt;');
@@ -411,4 +431,11 @@ function toggleSidebar() {
     var sidebarHeight = $('#sidebar')[0].clientHeight;
     $('#sidebar .title').width(sidebarHeight);
   }
+}
+
+function Marker(placeName, address, position) {
+  this.markerID = generateID();
+  this.placeName = placeName;
+  this.address = address;
+  this.position = position;
 }
