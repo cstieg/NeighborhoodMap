@@ -9,19 +9,22 @@
     <main>
       <div id="map"></div>
       <div id="sidebar" class="sidebar">
-        <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow" onclick="event.stopPropagation(); toggleSidebar()">&lt;</button>
+        <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow"
+                onclick="event.stopPropagation(); toggleSidebar()">&lt;</button>
         <div class="title rotatable">
           <h1>Neighborhood Map</h1>
         </div>
         <div class="search-markers collapsible">
           <div class="magnifying-glass collapsible"></div>
-          <form class="collapsible" data-bind="submit: searchMarkers">
-            <input type="text" name="searchText" placeholder="search for the name of specific marker">
+          <form class="collapsible" data-bind="event: {submit: function(){return false;}}">
+            <input type="text" name="searchText" data-bind="event: {input: filterMarkers}"
+                placeholder="search for the name of specific marker">
           </form>
         </div>
         <div class="markers collapsible">
-          <ul data-bind="foreach: markers">
-            <li data-bind="text: placeName, click: viewModel.clickMarkerName"></li>
+          <ul data-bind="foreach: filteredMarkers">
+            <li class="marker" data-bind="text: placeName,
+                event: {click: viewModel.clickMarkerName, mouseover: viewModel.mouseoverMarkerName}"></li>
           </ul>
         </div>
         <div class="street-view collapsible"></div>

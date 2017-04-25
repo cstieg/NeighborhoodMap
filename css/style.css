@@ -106,6 +106,17 @@ h1 {
   overflow-y: auto;
 }
 
+.marker:hover {
+  font-weight: bold;
+  background-color: blue;
+  color: white;
+}
+
+.marker:active {
+  font-style: italic;
+  transition: font-style 2s;
+}
+
 .street-view {
   position: static;
   width: 100%;

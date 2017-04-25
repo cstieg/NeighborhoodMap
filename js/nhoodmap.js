@@ -25,6 +25,11 @@ var viewModel = {
     this.locationCoords = ko.observable(null, {persist: 'locationCoords'});
     this.map = ko.observable();
     this.markers = ko.observableArray(null, {persist: 'markers'});
+    this.filteredMarkers = ko.observableArray([]);
+    this.filterMarkers();
+    this.markers.subscribe(function(newValue) {
+      this.filterMarkers();
+    }, this);
     //this.markers.removeAll();
 
     // simple js arrays to collect google maps objects for later access
@@ -102,7 +107,7 @@ var viewModel = {
   },
 
   //============================SEARCH MARKERS================================//
-  searchMarkers: function(formData) {
+  /*searchMarkers: function(formData) {
     var searchText = formData.searchText.value;
     var matchPlaceName = function(object) {
       return (object.placeName == searchText);
@@ -115,7 +120,20 @@ var viewModel = {
     viewModel.renderInfoWindow(marker, "display");
     return false;
   },
+*/
 
+  filterMarkers: function(data, event) {
+    var newFilteredMarkers = [];
+    if (event) {
+      var filter = event.target.value.toUpperCase();
+    }
+    for (var i=0; i < viewModel.markers().length; i++) {
+      if (!filter || viewModel.markers()[i].placeName.toUpperCase().includes(filter)) {
+        newFilteredMarkers.push(viewModel.markers()[i]);
+      }
+    }
+    viewModel.filteredMarkers(newFilteredMarkers);
+  },
 
   //==============================MARKERS=====================================//
 
@@ -140,11 +158,6 @@ var viewModel = {
       if (status === 'OK') {
         if (results[0]) {
           // on success, store the data
-          // check to make sure location is not already stored
-          debugger;
-// markerLocation???
-
-
           var newMarker = {
             markerID: generateID(),
             position: markerLocation,
@@ -154,9 +167,7 @@ var viewModel = {
             newMarker.placeName = '';
           }
 
-
           viewModel.addMarker(newMarker);
-
 
         } else {
           window.alert('No results found');
@@ -241,7 +252,7 @@ var viewModel = {
     var content = `<form>`;
     if (action == "edit") {
       if (marker.placeName) {
-        content += `<input type="text" name="name" value="${marker.placeName}"><br>`;
+        content += `<input type="text" name="name" value="${marker.placeName}" required><br>`;
       }
       else {
         content += `<input type="text" name="name" placeholder="Input name for this location"><br>`;
