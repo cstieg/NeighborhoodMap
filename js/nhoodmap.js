@@ -4,6 +4,9 @@
  *  ViewModel - the data and functions
  *  View - the HTML with bindings to VM data and functions
  */
+
+WIKIPEDIA_USER_AGENT_INFO = 'NeighborHoodMap/1.0 (http://circumspectus.com/; cstieg4899@yahoo.com)';
+
 var viewModel = {
   // Initializes data in Knockout observables, which automatically refreshes html
   // Data is persisted to localStorage by knockout.localStorage.js
@@ -303,8 +306,18 @@ var viewModel = {
 
 //==============================SIDEBAR=======================================//
   // Collapses or expands the sidebar
-  toggleSidebar: function() {
-    if ($('#collapse-button')[0].innerHTML == '&gt;') {
+  toggleSidebar: function(collapse) {
+    if ((collapse && collapse === true) || $('#collapse-button')[0].innerHTML == '&lt;') {
+      $('#sidebar').addClass('collapsed-sidebar');
+      $('#sidebar').on('click', viewModel.toggleSidebar);
+      $('.collapsible').addClass('no-display');
+      $('.rotatable').addClass('rotate');
+      $('#collapse-button').html('&gt;');
+      $('#sidebar .title h1').text('Click to Expand');
+      var sidebarHeight = $('#sidebar')[0].clientHeight;
+      $('#sidebar .title').width(sidebarHeight);
+    }
+    else {
       $('#sidebar').removeClass('collapsed-sidebar');
       $('#sidebar').off('click');
       $('.collapsible').removeClass('no-display');
@@ -312,16 +325,6 @@ var viewModel = {
       $('#collapse-button').html('&lt;');
       $('#sidebar .title h1').text('Neighborhood Map');
       $('#sidebar .title').width('100%');
-    }
-    else {
-      $('#sidebar').addClass('collapsed-sidebar');
-      $('#sidebar').on('click', this.toggleSidebar);
-      $('.collapsible').addClass('no-display');
-      $('.rotatable').addClass('rotate');
-      $('#collapse-button').html('&gt;');
-      $('#sidebar .title h1').text('Click to Expand');
-      var sidebarHeight = $('#sidebar')[0].clientHeight;
-      $('#sidebar .title').width(sidebarHeight);
     }
   },
 
@@ -393,12 +396,12 @@ var viewModel = {
           type: 'GET',
           dataType: 'jsonp',
           headers: {
-            'Api-User-Agent': 'NeighborHoodMap/1.0 (http://circumspectus.com/; cstieg4899@yahoo.com)'
+            'Api-User-Agent': WIKIPEDIA_USER_AGENT_INFO
           },
           success: function(data) {
             var pageIDs = Object.keys(data.query.pages);
             var pageContent = data.query.pages[pageIDs[0]].extract;
-            $('.media-info').html(pageContent);
+            $('.media-info-content').html(pageContent);
           }
         });
       }
@@ -419,7 +422,17 @@ function initialMap() {
     viewModel.addMarker(marker);
   });
   viewModel.displayStreetview();
+
+  // set initial display for mobile screens
+  if (window.innerWidth < 600) {
+    viewModel.toggleSidebar(true);
+    viewModel.map().zoom = 14;
+  }
 }
+
+
+
+
 
 
 //========================MISC FUNCTIONS======================================//
