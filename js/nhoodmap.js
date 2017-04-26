@@ -392,7 +392,11 @@ var viewModel = {
         var $wikipediaLinks = $("#wikipediaLinks");
         $wikipediaLinks.empty();
         for (var i = 0; i < wikiPages.length; i++) {
-          $wikipediaLinks.append(`<p><a href="https://en.wikipedia.org/wiki/${wikiPages[i].title}">${wikiPages[i].title}</a></p>`);
+          $wikipediaLinks.append(
+            `<p>
+              <a href="https://en.wikipedia.org/wiki/${wikiPages[i].title}" target="_blank">
+              ${wikiPages[i].title}</a>
+            </p>`);
         }
 
         // display the extract of the first Wikipedia page in the sidebar
@@ -435,10 +439,6 @@ function initialMap() {
     viewModel.map().zoom = 14;
   }
 }
-
-
-
-
 
 
 //========================MISC FUNCTIONS======================================//

@@ -5,7 +5,8 @@ which is part of the **Full Stack Nanodegree** from
 [Udacity.com](https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004).
 It is a webpage that displays a number of markers for locations in a neighborhood
 using the Google Maps API, and retrieves info about the locations from Wikipedia
-as well as displaying the street view from Google.
+as well as displaying the street view from Google.  Utilizes the Model-View-ViewModel
+design of Knockout.js.
 
 
 ## Getting Started
@@ -19,6 +20,7 @@ as well as displaying the street view from Google.
 variable at the top of nhoodmap.js.
     * For more information, see [Wikipedia's API page.](https://www.mediawiki.org/wiki/API:Main_page)
 
+* Can also edit the default list of locations at the top of nhoodmap.js.
 
 * Open index.html in a web browser.
 
