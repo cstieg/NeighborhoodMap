@@ -10,13 +10,13 @@
       <div id="map"></div>
       <div id="sidebar" class="sidebar">
         <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow"
-                onclick="event.stopPropagation(); toggleSidebar()">&lt;</button>
+                onclick="event.stopPropagation(); viewModel.toggleSidebar()">&lt;</button>
         <div class="title rotatable">
           <h1>Neighborhood Map</h1>
         </div>
         <div class="search-markers collapsible">
           <div class="magnifying-glass collapsible"></div>
-          <form class="collapsible" data-bind="event: {submit: function(){return false;}}">
+          <form class="collapsible" data-bind="event: {submit: function() { return false; }}">
             <input type="text" name="searchText" data-bind="event: {input: filterMarkers}"
                 placeholder="search for the name of specific marker">
           </form>
@@ -30,14 +30,6 @@
         <div class="street-view collapsible"></div>
         <div class="media-info collapsible"></div>
       </div>
-    <!--  <div id="inputAddress">
-        <form data-bind="submit: alert('hello')">
-          <input name="address" type="text" placeholder="add address">
-          <button type="submit">Submit</button>
-        </form>
-      </div>  -->
-
-
     </main>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>

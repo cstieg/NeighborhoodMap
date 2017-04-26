@@ -19,6 +19,7 @@ html, body {
   margin: 0;
 }
 
+/*************************SIDEBAR**********************************************/
 .sidebar {
   position: absolute;
   left: 0;
@@ -27,6 +28,7 @@ html, body {
   top: 40px;
   bottom: 30px;
   border: ridge medium gray;
+  background-color: rgb(255, 255, 250);
   background-color: rgba(255, 255, 240, 0.8);
   box-sizing: border-box;
   transition: width 2s;
@@ -36,10 +38,6 @@ html, body {
   width: 36px;
   min-width: 0;
   transition: width 2s;
-}
-
-.no-display {
-  display: none !important;
 }
 
 .collapse-arrow {
@@ -53,12 +51,6 @@ html, body {
   z-index: 3;
 }
 
-.title {
-  width: 100%;
-  height: 4%;
-}
-
-
 .rotate {
   position: absolute;
   top: 100%;
@@ -67,6 +59,11 @@ html, body {
   text-align: center;
   transform: rotate(270deg);
   transform-origin: top left;
+}
+
+.title {
+  width: 100%;
+  height: 4%;
 }
 
 h1 {
@@ -84,7 +81,6 @@ h1 {
   display: flex;
 }
 
-
 .search-markers form {
   width: 250px;
   margin-left: 10px;
@@ -94,6 +90,7 @@ h1 {
 }
 
 .search-markers input {
+  weofijw: 3;
   width: 100%;
   padding: 4px;
   border: solid 0px;
@@ -153,6 +150,12 @@ h1 {
 
 #inputAddress form input[name=address] {
   width: 210px;
+}
+
+
+
+.no-display {
+  display: none !important;
 }
 
 /* Magnifying glass From http://enjoycss.com/code/ */
