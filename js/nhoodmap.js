@@ -32,7 +32,6 @@ var viewModel = {
 
     // list of marker object filtered by the user to display on the sidebar
     this.filteredMarkers = ko.observableArray([]);
-    this.filterMarkers();
     this.markers.subscribe(function(newValue) {
       this.filterMarkers();
     }, this);
@@ -67,7 +66,12 @@ var viewModel = {
   // displays all markers based on stored marker locations
   displayMarkers: function() {
     var vm = this;
-    this.markers().forEach(function(marker) {
+    for (var i = this.gMapMarkers.length - 1; i >= 0; i--) {
+      this.gMapMarkers[i].setMap(null);
+      this.gMapMarkers.pop();
+    }
+    this.gMapMarkers = [];
+    this.filteredMarkers().forEach(function(marker) {
       var gMapMarker = vm.showMarker(marker, vm.map());
       vm.gMapMarkers.push(gMapMarker);
     });
@@ -341,6 +345,7 @@ var viewModel = {
       }
     }
     viewModel.filteredMarkers(newFilteredMarkers);
+    viewModel.displayMarkers();
   },
 
   // select a marker when clicked from the list in sidebar
@@ -421,6 +426,7 @@ function initialMap() {
   viewModel.locations.forEach(function(marker) {
     viewModel.addMarker(marker);
   });
+  viewModel.filterMarkers();
   viewModel.displayStreetview();
 
   // set initial display for mobile screens
