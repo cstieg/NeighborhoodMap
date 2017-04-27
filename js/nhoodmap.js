@@ -445,9 +445,10 @@ function initialMap() {
 // Copy the properties in one object to another new one
 function objCpy(originalObject) {
   var newObject = {};
-  for (var prop in originalObject) {
+  for (var i = 0; i < originalObject.length; i++) {
+    var prop = originalObject[i];
     if (originalObject.hasOwnProperty(prop)) {
-        newObject[prop] = originalObject[prop];
+      newObject[prop] = originalObject[prop];
     }
   }
   return newObject;
