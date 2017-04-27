@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 /*
  * Uses Knockout.js, which has MVVM structure:
  *  Model - stored data
@@ -12,7 +14,7 @@ var viewModel = {
   // Data is persisted to localStorage by knockout.localStorage.js
   init: function() {
     // location on which the map is centered
-    this.mapCenterLocation =  {lat: 42.96469810674499, lng: -85.67106485366821}
+    this.mapCenterLocation =  {lat: 42.96469810674499, lng: -85.67106485366821};
 
     // list of marker locations to show, more can be added by the user
     this.locations = [new Marker('Cathedral of St. Andrew', '265 Sheldon Blvd SE, Grand Rapids, MI 49503', {lat: 42.9586366, lng: -85.66676749999999}),
@@ -66,10 +68,6 @@ var viewModel = {
   // displays all markers based on stored marker locations
   displayMarkers: function() {
     var vm = this;
-    for (var i = this.gMapMarkers.length - 1; i >= 0; i--) {
-      this.gMapMarkers[i].setMap(null);
-      this.gMapMarkers.pop();
-    }
     this.gMapMarkers = [];
     this.filteredMarkers().forEach(function(marker) {
       var gMapMarker = vm.showMarker(marker, vm.map());
@@ -170,7 +168,7 @@ var viewModel = {
       lng: result.latLng.lng()
     };
     // reverse geocode to find address
-    var geocoder = new google.maps.Geocoder;
+    var geocoder = new google.maps.Geocoder();
     geocoder.geocode({'location': markerLocation}, function(results, status) {
       if (status === 'OK') {
         if (results[0]) {
@@ -253,7 +251,7 @@ var viewModel = {
     // filter to find correct marker
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
-    }
+    };
 
     // find and update marker in array
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
@@ -272,7 +270,7 @@ var viewModel = {
     var markerID = event.target.parentNode.getElementsByClassName('markerID')[0].innerText;
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
-    }
+    };
     // find marker in array
     var marker = ko.utils.arrayFirst(viewModel.markers(), matchMarkerID);
     if (!marker) { return; }
@@ -298,7 +296,7 @@ var viewModel = {
   deleteGMarker: function(markerID) {
     var matchMarkerID = function(object) {
       return (object.markerID == markerID);
-    }
+    };
     var markerToRemove = viewModel.gMapMarkers.find(matchMarkerID);
     if (markerToRemove) {
       markerToRemove.setMap(null);
@@ -336,16 +334,29 @@ var viewModel = {
   // update the filteredMarkers collection according to the newly-typed data in filter input
   filterMarkers: function(data, event) {
     var newFilteredMarkers = [];
+    var filter = null;
     if (event) {
-      var filter = event.target.value.toUpperCase();
+      filter = event.target.value.toUpperCase();
     }
+
     for (var i=0; i < viewModel.markers().length; i++) {
+      var gMapMarker = viewModel.getGMarker(viewModel.markers()[i]);
       if (!filter || viewModel.markers()[i].placeName.toUpperCase().includes(filter)) {
         newFilteredMarkers.push(viewModel.markers()[i]);
+
+        // display matching markers
+        if (gMapMarker) {
+          gMapMarker.setMap(viewModel.map());
+        }
+      }
+      else {
+        // hide filtered out markers
+        if (gMapMarker) {
+          gMapMarker.setMap(null);
+        }
       }
     }
     viewModel.filteredMarkers(newFilteredMarkers);
-    viewModel.displayMarkers();
   },
 
   // select a marker when clicked from the list in sidebar
@@ -369,7 +380,7 @@ var viewModel = {
         heading: 0,
         pitch: 0
       }
-    })
+    });
     this.map().setStreetView(streetView);
   },
 
@@ -388,7 +399,7 @@ var viewModel = {
       success: function(data) {
         // display Wikipedia links in infowindow
         var wikiPages = data.query.geosearch;
-        if (wikiPages.length == 0) { return };
+        if (wikiPages.length === 0) { return; }
         var $wikipediaLinks = $("#wikipediaLinks");
         $wikipediaLinks.empty();
         for (var i = 0; i < wikiPages.length; i++) {
@@ -426,11 +437,12 @@ ko.applyBindings(viewModel);
 
 // callback function from initial map call in index.html
 function initialMap() {
+  viewModel.filterMarkers();
   viewModel.displayMap();
   viewModel.locations.forEach(function(marker) {
     viewModel.addMarker(marker);
   });
-  viewModel.filterMarkers();
+
   viewModel.displayStreetview();
 
   // set initial display for mobile screens
