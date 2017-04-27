@@ -116,12 +116,11 @@ var viewModel = {
 
     // add listeners to display infowindow when clicked or mousedover
     gMapMarker.addListener('click', viewModel.onClickMarker);
-    gMapMarker.addListener('mouseover', viewModel.onClickMarker);
 
     return gMapMarker;
   },
 
-  // listener for click or mouseover Google maps marker
+  // listener for click Google maps marker
   // selects marker, causing infowindow popup
   onClickMarker: function(event) {
     var markerPosition = event.latLng;
@@ -136,14 +135,6 @@ var viewModel = {
     if (!marker) { return; }
     var markerPosition = marker.position;
     var gMapMarker = viewModel.getGMarker(marker);
-
-    // clear listeners upon selection to prevent double selection,
-    // restore on mouseout
-    google.maps.event.clearListeners(gMapMarker, 'mouseover');
-    gMapMarker.addListener('mouseout', function() {
-      google.maps.event.clearListeners(gMapMarker, 'mouseout');
-      gMapMarker.addListener('mouseover', viewModel.onClickMarker);
-    });
 
     viewModel.animateMarker(gMapMarker);
     viewModel.renderInfoWindow(marker, "display");
