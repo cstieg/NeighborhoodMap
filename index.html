@@ -8,20 +8,20 @@
   <body>
     <main>
       <div id="map"></div>
-      <div id="sidebar" class="sidebar">
+      <div id="sidebar" class="sidebar" data-bind="css: { 'collapsed-sidebar': sidebarCollapsed() }">
         <button id="collapse-button" name="collapse-sidebar" tooltip="Collapse sidebar" class="collapse-arrow"
                 onclick="event.stopPropagation(); viewModel.toggleSidebar()">&lt;</button>
-        <div class="title rotatable">
+        <div class="title" data-bind="css: { rotate: sidebarCollapsed() }">
           <h1>Neighborhood Map</h1>
         </div>
-        <div class="search-markers collapsible">
-          <div class="magnifying-glass collapsible"></div>
-          <form class="collapsible" data-bind="event: {submit: function() { return false; }}">
+        <div class="search-markers" data-bind="css: { 'no-display': sidebarCollapsed() }">
+          <div class="magnifying-glass" data-bind="css: { 'no-display': sidebarCollapsed() }"></div>
+          <form data-bind="event: {submit: function() { return false; }}, css: { 'no-display': sidebarCollapsed() }">
             <input type="text" name="searchText" data-bind="event: {input: filterMarkers}"
                 placeholder="search for the name of specific marker">
           </form>
         </div>
-        <div class="markers collapsible">
+        <div class="markers" data-bind="css: { 'no-display': sidebarCollapsed() }">
           <ul data-bind="foreach: filteredMarkers">
             <li class="marker" data-bind="text: placeName,
                 event: {click: viewModel.clickMarkerName, mouseover: viewModel.mouseoverMarkerName}"></li>
@@ -30,8 +30,8 @@
             Right-click on the map to add more markers!
           </p>
         </div>
-        <div class="street-view collapsible">Click a marker to see the street view from Google!</div>
-        <div class="media-info collapsible">
+        <div class="street-view" data-bind="css: { 'no-display': sidebarCollapsed() }">Click a marker to see the street view from Google!</div>
+        <div class="media-info" data-bind="css: { 'no-display': sidebarCollapsed() }">
           <div class="media-info-title">
             <h5>Info from Wikipedia</h5>
           </div>

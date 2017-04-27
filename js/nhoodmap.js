@@ -43,6 +43,8 @@ var viewModel = {
 
     // holder for infowindow
     this.infoWindow = null;
+
+    this.sidebarCollapsed = ko.observable(false);
   },
 
 
@@ -292,21 +294,17 @@ var viewModel = {
 //==============================SIDEBAR=======================================//
   // Collapses or expands the sidebar
   toggleSidebar: function(collapse) {
-    if ((collapse && collapse === true) || $('#collapse-button')[0].innerHTML == '&lt;') {
-      $('#sidebar').addClass('collapsed-sidebar');
+    if ((collapse && collapse === true) || !viewModel.sidebarCollapsed()) {
+      viewModel.sidebarCollapsed(true);
       $('#sidebar').on('click', viewModel.toggleSidebar);
-      $('.collapsible').addClass('no-display');
-      $('.rotatable').addClass('rotate');
       $('#collapse-button').html('&gt;');
       $('#sidebar .title h1').text('Click to Expand');
       var sidebarHeight = $('#sidebar')[0].clientHeight;
       $('#sidebar .title').width(sidebarHeight);
     }
     else {
-      $('#sidebar').removeClass('collapsed-sidebar');
+      viewModel.sidebarCollapsed(false);
       $('#sidebar').off('click');
-      $('.collapsible').removeClass('no-display');
-      $('.rotatable').removeClass('rotate');
       $('#collapse-button').html('&lt;');
       $('#sidebar .title h1').text('Neighborhood Map');
       $('#sidebar .title').width('100%');
