@@ -425,6 +425,7 @@ ko.applyBindings(viewModel);
 
 // callback function from initial map call in index.html
 function initialMap() {
+  debugger;
   viewModel.filterMarkers();
   viewModel.displayMap();
   viewModel.locations.forEach(function(marker) {
@@ -438,6 +439,11 @@ function initialMap() {
     viewModel.toggleSidebar(true);
     viewModel.map().zoom = 14;
   }
+}
+
+// error callback loading Google maps
+function loadGMapsError() {
+  alert("Sorry, can't load Google Maps API :(");
 }
 
 
