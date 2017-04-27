@@ -111,7 +111,8 @@ var viewModel = {
     viewModel.deleteGMarker(marker.markerID);
 
     // make a copy of our marker object and use it for Google maps marker
-    gMapMarker = new google.maps.Marker(objCpy(marker));
+    var copiedMarker = jQuery.extend({}, marker);
+    gMapMarker = new google.maps.Marker(copiedMarker);
 
     // place the Google maps marker on the map
     gMapMarker.setMap(map);
@@ -370,7 +371,6 @@ var viewModel = {
   retrieveWikipediaPages: function(location) {
     // get list of Wikipedia pages for the latlng
     var wikiURL = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat}|${location.lng}&gsradius=100&gslimit=10&format=json`;
-    var $wikipediaLinks = $("#wikipediaLinks");
     $.ajax({
       url: wikiURL,
       type: 'GET',
@@ -382,14 +382,6 @@ var viewModel = {
         // display Wikipedia links in infowindow
         var wikiPages = data.query.geosearch;
         if (wikiPages.length === 0) { return; }
-        $wikipediaLinks.empty();
-        for (var i = 0; i < wikiPages.length; i++) {
-          $wikipediaLinks.append(
-            `<p>
-              <a href="https://en.wikipedia.org/wiki/${wikiPages[i].title}" target="_blank">
-              ${wikiPages[i].title}</a>
-            </p>`);
-        }
 
         // display the extract of the first Wikipedia page in the sidebar
         $.ajax({
@@ -425,7 +417,6 @@ ko.applyBindings(viewModel);
 
 // callback function from initial map call in index.html
 function initialMap() {
-  debugger;
   viewModel.filterMarkers();
   viewModel.displayMap();
   viewModel.locations.forEach(function(marker) {
@@ -448,18 +439,6 @@ function loadGMapsError() {
 
 
 //========================MISC FUNCTIONS======================================//
-// Copy the properties in one object to another new one
-function objCpy(originalObject) {
-  var newObject = {};
-  for (var i = 0; i < originalObject.length; i++) {
-    var prop = originalObject[i];
-    if (originalObject.hasOwnProperty(prop)) {
-      newObject[prop] = originalObject[prop];
-    }
-  }
-  return newObject;
-}
-
 // Generate random id
 function generateID() {
   return Math.random().toString(36).substr(2, 9);
