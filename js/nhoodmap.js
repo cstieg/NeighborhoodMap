@@ -370,6 +370,7 @@ var viewModel = {
   retrieveWikipediaPages: function(location) {
     // get list of Wikipedia pages for the latlng
     var wikiURL = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat}|${location.lng}&gsradius=100&gslimit=10&format=json`;
+    var $wikipediaLinks = $("#wikipediaLinks");
     $.ajax({
       url: wikiURL,
       type: 'GET',
@@ -381,7 +382,6 @@ var viewModel = {
         // display Wikipedia links in infowindow
         var wikiPages = data.query.geosearch;
         if (wikiPages.length === 0) { return; }
-        var $wikipediaLinks = $("#wikipediaLinks");
         $wikipediaLinks.empty();
         for (var i = 0; i < wikiPages.length; i++) {
           $wikipediaLinks.append(
@@ -403,8 +403,15 @@ var viewModel = {
             var pageIDs = Object.keys(data.query.pages);
             var pageContent = data.query.pages[pageIDs[0]].extract;
             $('.media-info-content').html(pageContent);
+          },
+          error: function() {
+            $('.media-info-content').html('<p>Could not retrieve Wikipedia info for this location!</p>');
           }
         });
+      },
+
+      error: function() {
+        $wikipediaLinks.append('<p>Could not retrieve list of Wikipedia links for this location!</p>');
       }
     });
   },
