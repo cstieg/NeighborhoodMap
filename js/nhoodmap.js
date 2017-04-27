@@ -194,19 +194,11 @@ var viewModel = {
   //=================MARKER INFOWINDOW INTERACTION=============================//
   // display infoWindow at a given marker
   renderInfoWindow: function(marker, action) {
-    if (viewModel.infoWindow) {
-      viewModel.infoWindow.close();
-      viewModel.infoWindow = null;
-    }
     if (!marker) { return; }
     var gMapMarker = viewModel.getGMarker(marker);
     gMapMarker.placeName = marker.placeName;
-    var infoWindow = new google.maps.InfoWindow({
-      content: viewModel.markerInfoWindowContent(gMapMarker, action)
-    });
-    // store infoWindow (only one open at a time) in variable to make sure it stays alive
-    viewModel.infoWindow = infoWindow;
-    infoWindow.open(viewModel.map(), gMapMarker);
+    viewModel.infoWindow.setContent(viewModel.markerInfoWindowContent(gMapMarker, action));
+    viewModel.infoWindow.open(viewModel.map(), gMapMarker);
   },
 
   // return the form html for infoWindow at marker
@@ -442,7 +434,7 @@ function initialMap() {
   viewModel.locations.forEach(function(marker) {
     viewModel.addMarker(marker);
   });
-
+  viewModel.infoWindow = new google.maps.InfoWindow();
   viewModel.displayStreetview();
 
   // set initial display for mobile screens
