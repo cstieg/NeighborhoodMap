@@ -45,6 +45,7 @@ var viewModel = {
     this.infoWindow = null;
 
     this.sidebarCollapsed = ko.observable(false);
+    this.mediaInfoContent = ko.observable('');
   },
 
 
@@ -328,13 +329,13 @@ var viewModel = {
 
         // display matching markers
         if (gMapMarker) {
-          gMapMarker.setMap(viewModel.map());
+          gMapMarker.setVisible(true);
         }
       }
       else {
         // hide filtered out markers
         if (gMapMarker) {
-          gMapMarker.setMap(null);
+          gMapMarker.setVisible(false);
         }
       }
     }
@@ -394,16 +395,16 @@ var viewModel = {
           success: function(data) {
             var pageIDs = Object.keys(data.query.pages);
             var pageContent = data.query.pages[pageIDs[0]].extract;
-            $('.media-info-content').html(pageContent);
+            viewModel.mediaInfoContent(pageContent);
           },
           error: function() {
-            $('.media-info-content').html('<p>Could not retrieve Wikipedia info for this location!</p>');
+            viewModel.mediaInfoContent('Could not retrieve Wikipedia info for this location!');
           }
         });
       },
 
       error: function() {
-        $wikipediaLinks.append('<p>Could not retrieve list of Wikipedia links for this location!</p>');
+        viewModel.mediaInfoContent('Could not retrieve list of Wikipedia links for this location!');
       }
     });
   },
