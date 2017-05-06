@@ -420,10 +420,10 @@ ko.applyBindings(viewModel);
 function initialMap() {
   viewModel.filterMarkers();
   viewModel.displayMap();
+  viewModel.infoWindow = new google.maps.InfoWindow();
   viewModel.locations.forEach(function(marker) {
     viewModel.addMarker(marker);
   });
-  viewModel.infoWindow = new google.maps.InfoWindow();
   viewModel.displayStreetview();
 
   // set initial display for mobile screens
